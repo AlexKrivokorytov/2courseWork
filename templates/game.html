@@ -1,73 +1,32 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="card game-details">
-    {% if game.cover_url %}
-        <img class="cover-large" src="{{ game.cover_url }}" alt="{{ game.title }}">
-    {% endif %}
-
-    <div class="game-main">
+<div style="display:flex; gap:20px; background:#1e1e1e; padding:20px; border-radius:5px;">
+    <img src="{{ game.cover_url or 'https://via.placeholder.com/200x300' }}" style="width:200px; border-radius:5px;">
+    <div>
         <h1>{{ game.title }}</h1>
-        <div class="meta">Release date: {{ game.release_date }}</div>
-        <div class="meta">Developer: {{ game.developer }}</div>
-        <div class="meta">Publisher: {{ game.publisher }}</div>
-        <div class="meta">Genres: {{ game.genres or '-' }}</div>
-        <div class="meta">Platforms: {{ game.platforms or '-' }}</div>
-        <div class="meta">User score: {{ game.avg_user_score or '-' }} ({{ game.user_review_count }} reviews)</div>
-        <div class="meta">Critic score: {{ game.avg_critic_score or '-' }} ({{ game.critic_review_count }} reviews)</div>
-        <p style="margin-top:14px;">{{ game.description }}</p>
+        <p><b>Date:</b> {{ game.release_date }} | <b>Studio:</b> {{ game.developer }}</p>
+        <p>{{ game.description }}</p>
+        <h2 style="color:#ffca28;">⭐ {{ game.avg_score or '0' }} / 10</h2>
     </div>
 </div>
 
-<div class="card">
-    <h2>User Reviews</h2>
-
-    {% for r in user_reviews %}
-        <div class="review-item">
-            <strong>{{ r.username }}</strong> - {{ r.score }}/10
-            <span class="meta">{{ r.created_at }}</span>
-            <p>{{ r.review_text }}</p>
-        </div>
-    {% else %}
-        <p>No reviews yet.</p>
+<div style="margin-top:20px;">
+    <h3>Player Reviews</h3>
+    {% for r in reviews %}
+    <div style="background:#1e1e1e; padding:10px; margin-bottom:10px; border-left:4px solid #8b5cf6;">
+        <b>{{ r.username }}</b> <span style="color:#ffca28;">(Score: {{ r.score }})</span>
+        <p>{{ r.review_text }}</p>
+    </div>
     {% endfor %}
 
     {% if session.username %}
-        <h3 style="margin-top:16px;">Leave a Review</h3>
-        <form method="post" action="{{ url_for('add_user_review', game_id=game.id) }}">
-            <input type="number" name="score" min="0" max="10" step="0.1" placeholder="Score (0-10)" required>
-            <textarea name="review_text" rows="4" placeholder="Your review" required></textarea>
-            <button class="btn" type="submit">Submit</button>
-        </form>
-    {% else %}
-        <p style="margin-top:12px;"><a href="{{ url_for('login') }}">Log in</a> to leave a review.</p>
-    {% endif %}
-</div>
-
-<div class="card">
-    <h2>Critic Reviews</h2>
-
-    {% for r in critic_reviews %}
-        <div class="review-item">
-            <strong>{{ r.name }}</strong> ({{ r.outlet }}) - {{ r.score }}/10
-            <span class="meta">{{ r.created_at }}</span>
-            <p>{{ r.review_text }}</p>
-        </div>
-    {% else %}
-        <p>No critic reviews yet.</p>
-    {% endfor %}
-
-    <h3 style="margin-top:16px;">Add Critic Review</h3>
-    <form method="post" action="{{ url_for('add_critic_review', game_id=game.id) }}">
-        <select name="critic_id" required>
-            <option value="">Select critic</option>
-            {% for c in critics %}
-                <option value="{{ c.id }}">{{ c.name }} - {{ c.outlet }}</option>
-            {% endfor %}
-        </select>
-        <input type="number" name="score" min="0" max="10" step="0.1" placeholder="Score (0-10)" required>
-        <textarea name="review_text" rows="4" placeholder="Critic review text" required></textarea>
-        <button class="btn" type="submit">Add Review</button>
+    <form action="{{ url_for('add_review', game_id=game.id) }}" method="POST" style="background:#1e1e1e; padding:15px; margin-top:20px;">
+        <h4>Leave a Review</h4>
+        <input type="number" name="score" step="0.1" min="0" max="10" placeholder="Score (0-10)" required>
+        <textarea name="review_text" placeholder="Your thoughts..." required></textarea>
+        <button type="submit">Publish</button>
     </form>
+    {% endif %}
 </div>
 {% endblock %}

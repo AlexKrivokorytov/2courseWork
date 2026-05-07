@@ -1,52 +1,25 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="card">
-    <h1>Add Game</h1>
+<div style="background:#1e1e1e; padding:20px; border-radius:5px;">
+    <h1>Add New Game</h1>
     <form method="post">
-        <label>Title</label>
-        <input type="text" name="title" required>
-
-        <label>Release Date</label>
-        <input type="date" name="release_date" required>
-
-        <label>Cover URL (optional)</label>
-        <input type="text" name="cover_url" placeholder="https://...">
-
-        <label>Developer</label>
+        <label>Title:</label><input type="text" name="title" required>
+        <label>Release Date:</label><input type="date" name="release_date" required>
+        <label>Cover URL:</label><input type="text" name="cover_url">
+        
+        <label>Developer:</label>
         <select name="developer_id" required>
-            <option value="">Select one</option>
-            {% for d in developers %}
-                <option value="{{ d.id }}">{{ d.name }}</option>
-            {% endfor %}
+            {% for d in developers %}<option value="{{ d.id }}">{{ d.name }}</option>{% endfor %}
         </select>
 
-        <label>Publisher</label>
+        <label>Publisher:</label>
         <select name="publisher_id" required>
-            <option value="">Select one</option>
-            {% for p in publishers %}
-                <option value="{{ p.id }}">{{ p.name }}</option>
-            {% endfor %}
+            {% for p in publishers %}<option value="{{ p.id }}">{{ p.name }}</option>{% endfor %}
         </select>
 
-        <label>Description</label>
-        <textarea name="description" rows="5" required></textarea>
-
-        <label>Genres</label>
-        <select name="genre_ids" multiple>
-            {% for g in genres %}
-                <option value="{{ g.id }}">{{ g.name }}</option>
-            {% endfor %}
-        </select>
-
-        <label>Platforms</label>
-        <select name="platform_ids" multiple>
-            {% for p in platforms %}
-                <option value="{{ p.id }}">{{ p.name }} ({{ p.abbreviation }})</option>
-            {% endfor %}
-        </select>
-
-        <button class="btn" type="submit">Add Game</button>
+        <label>Description:</label><textarea name="description" rows="4" required></textarea>
+        <button type="submit">Save Game</button>
     </form>
 </div>
 {% endblock %}

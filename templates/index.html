@@ -1,45 +1,31 @@
 {% extends "base.html" %}
 
 {% block content %}
-<h1>Game Catalog</h1>
-
-<div class="card">
-    <form method="get">
-        <label>Search by title</label>
-        <input type="text" name="search" value="{{ search }}" placeholder="Enter game title">
-
-        <label>Sort by</label>
-        <select name="sort">
-            <option value="title" {% if sort == "title" %}selected{% endif %}>Title</option>
-            <option value="release_date" {% if sort == "release_date" %}selected{% endif %}>Release date</option>
-            <option value="user_score" {% if sort == "user_score" %}selected{% endif %}>User score</option>
-            <option value="critic_score" {% if sort == "critic_score" %}selected{% endif %}>Critic score</option>
+<header>
+    <h1>🎮 Games Catalog</h1>
+    <form action="{{ url_for('index') }}" method="GET" style="display:flex; gap:10px; margin-bottom:20px;">
+        <input type="text" name="search" placeholder="Search..." value="{{ search }}">
+        <select name="sort" onchange="this.form.submit()">
+            <option value="title" {% if sort == 'title' %}selected{% endif %}>By Title</option>
+            <option value="release_date" {% if sort == 'release_date' %}selected{% endif %}>Newest First</option>
+            <option value="user_score" {% if sort == 'user_score' %}selected{% endif %}>Top Rated</option>
         </select>
-
-        <button class="btn" type="submit">Apply</button>
+        <button type="submit">Search</button>
     </form>
-</div>
+</header>
 
-{% for game in games %}
-<div class="card game-card">
-    <div class="game-main">
-        <h2>{{ game.title }}</h2>
-        <div class="meta">Release date: {{ game.release_date }}</div>
-        <div class="meta">Developer: {{ game.developer }}</div>
-        <div class="meta">Publisher: {{ game.publisher }}</div>
-        <div class="meta">Genres: {{ game.genres or '-' }}</div>
-        <div class="meta">Platforms: {{ game.platforms or '-' }}</div>
-        <div class="meta">User score: {{ game.avg_user_score or '-' }} ({{ game.user_review_count }} reviews)</div>
-        <div class="meta">Critic score: {{ game.avg_critic_score or '-' }} ({{ game.critic_review_count }} reviews)</div>
-        <a class="btn" href="{{ url_for('game', game_id=game.id) }}">Details</a>
+<div class="game-grid">
+    {% for game in games %}
+    <div class="game-card">
+        <a href="{{ url_for('game', game_id=game.id) }}">
+            <img src="{{ game.cover_url or 'https://via.placeholder.com/200x300' }}" class="card-image">
+        </a>
+        <div class="card-content">
+            <h3>{{ game.title }}</h3>
+            <p>Разработчик: {{ game.developer }}</p>
+            <div class="score-badge">⭐ {{ game.avg_score or '—' }}</div>
+        </div>
     </div>
-    {% if game.cover_url %}
-        <img class="cover-small" src="{{ game.cover_url }}" alt="{{ game.title }}">
-    {% endif %}
+    {% endfor %}
 </div>
-{% else %}
-<div class="card">
-    <p>No games found. <a href="{{ url_for('add_game') }}">Add the first one.</a></p>
-</div>
-{% endfor %}
 {% endblock %}

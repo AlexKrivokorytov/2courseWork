@@ -1,19 +1,12 @@
 {% extends "base.html" %}
-
 {% block content %}
-<div class="card" style="max-width:420px; margin:0 auto;">
-    <h1>Log In</h1>
+<div style="max-width:400px; margin:50px auto; background:#1e1e1e; padding:20px; border-radius:5px;">
+    <h2>Log In</h2>
     <form method="post">
-        <label>Username</label>
-        <input type="text" name="username" required>
-
-        <label>Password</label>
-        <input type="password" name="password" required>
-
-        <button class="btn" type="submit">Log In</button>
+        <label>Username:</label><input type="text" name="username" required>
+        <label>Password:</label><input type="password" name="password" required>
+        <button type="submit" style="width:100%">Enter</button>
     </form>
-    <p style="margin-top:12px; font-size:14px;">
-        No account? <a href="{{ url_for('register') }}">Register</a>
-    </p>
+    <p>New here? <a href="{{ url_for('register') }}">Create account</a></p>
 </div>
 {% endblock %}

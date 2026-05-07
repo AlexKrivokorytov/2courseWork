@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+
+{% block title %}Statistics - GameBase{% endblock %}
+
+{% block content %}
+<div class="stats-container">
+    <h1>📊 System Statistics</h1>
+    <p>Demonstration of window functions and data aggregation.</p>
+
+    <div class="stats-grid">
+        <!-- Глобальный рейтинг -->
+        <section class="stats-card">
+            <h2>🏆 Top-10 Games (Global)</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Rank</th>
+                        <th>Title</th>
+                        <th>Score</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for rank in rankings %}
+                    <tr>
+                        <td>#{{ rank.global_rank }}</td>
+                        <td>{{ rank.title }}</td>
+                        <td>{{ rank.total_score }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </section>
+
+        <!-- Распределение и Активность -->
+        <section class="stats-card">
+            <h2>📊 Score Distribution</h2>
+            <div class="score-dist-container">
+                {% for item in score_dist %}
+                <div class="dist-row">
+                    <span class="dist-label">{{ item.rating }}⭐</span>
+                    <div class="dist-bar-bg">
+                        <div class="dist-bar-fill" style="width: {{ (item.count * 10) }}px; max-width: 100%;"></div>
+                    </div>
+                    <span class="dist-count">{{ item.count }}</span>
+                </div>
+                {% endfor %}
+            </div>
+
+            <hr>
+
+            <h2>📈 Monthly Activity</h2>
+            <div class="compact-growth-chart">
+                {% for day in review_growth %}
+                <div class="chart-bar" style="height: {{ day.monthly_reviews * 2 }}px;" title="{{ day.date }}">
+                    <span class="bar-value">{{ day.monthly_reviews }}</span>
+                </div>
+                {% endfor %}
+            </div>
+        </section>
+    </div>
+</div>
+{% endblock %}

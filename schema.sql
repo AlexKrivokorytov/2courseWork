@@ -1,40 +1,40 @@
+-- Таблица разработчиков игр
 CREATE TABLE IF NOT EXISTS developers (
     id INT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(150) NOT NULL UNIQUE,
     country VARCHAR(100) NOT NULL
 );
 
+-- Таблица издателей игр
 CREATE TABLE IF NOT EXISTS publishers (
     id INT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(150) NOT NULL UNIQUE,
     country VARCHAR(100) NOT NULL
 );
 
+-- Справочник жанров (экшн, рпг и т.д.)
 CREATE TABLE IF NOT EXISTS genres (
     id INT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(100) NOT NULL UNIQUE
 );
 
+-- Справочник игровых платформ (PC, PS5 и т.д.)
 CREATE TABLE IF NOT EXISTS platforms (
     id INT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(100) NOT NULL UNIQUE,
     abbreviation VARCHAR(20) NOT NULL UNIQUE
 );
 
-CREATE TABLE IF NOT EXISTS critics (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    name VARCHAR(150) NOT NULL UNIQUE,
-    outlet VARCHAR(150) NOT NULL UNIQUE
-);
-
+-- Таблица пользователей системы
 CREATE TABLE IF NOT EXISTS users (
     id INT AUTO_INCREMENT PRIMARY KEY,
     username VARCHAR(100) NOT NULL UNIQUE,
     email VARCHAR(255) NOT NULL UNIQUE,
-    password_hash VARCHAR(255) NOT NULL,
+    password_hash VARCHAR(255) NOT NULL, -- Хешированный пароль для безопасности
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP
 );
 
+-- Основная таблица игр
 CREATE TABLE IF NOT EXISTS games (
     id INT AUTO_INCREMENT PRIMARY KEY,
     title VARCHAR(255) NOT NULL UNIQUE,
@@ -42,11 +42,12 @@ CREATE TABLE IF NOT EXISTS games (
     description TEXT NOT NULL,
     developer_id INT NOT NULL,
     publisher_id INT NOT NULL,
-    cover_url VARCHAR(255),
+    cover_url VARCHAR(255), -- Ссылка на обложку
     FOREIGN KEY (developer_id) REFERENCES developers(id),
     FOREIGN KEY (publisher_id) REFERENCES publishers(id)
 );
 
+-- Связующая таблица для связи "Многие ко многим" между играми и жанрами
 CREATE TABLE IF NOT EXISTS game_genres (
     game_id INT NOT NULL,
     genre_id INT NOT NULL,
@@ -55,6 +56,7 @@ CREATE TABLE IF NOT EXISTS game_genres (
     FOREIGN KEY (genre_id) REFERENCES genres(id) ON DELETE CASCADE
 );
 
+-- Связующая таблица для связи "Многие ко многим" между играми и платформами
 CREATE TABLE IF NOT EXISTS game_platforms (
     game_id INT NOT NULL,
     platform_id INT NOT NULL,
@@ -63,26 +65,88 @@ CREATE TABLE IF NOT EXISTS game_platforms (
     FOREIGN KEY (platform_id) REFERENCES platforms(id) ON DELETE CASCADE
 );
 
-CREATE TABLE IF NOT EXISTS user_reviews (
+-- Таблица отзывов пользователей
+CREATE TABLE IF NOT EXISTS reviews (
     id INT AUTO_INCREMENT PRIMARY KEY,
     game_id INT NOT NULL,
     user_id INT NOT NULL,
-    score DECIMAL(4,1) NOT NULL,
+    score DECIMAL(4,1) NOT NULL, -- Оценка от 0 до 10
     review_text TEXT NOT NULL,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-    UNIQUE KEY uq_user_reviews_game_user (game_id, user_id),
+    UNIQUE KEY uq_reviews_game_user (game_id, user_id), -- Один пользователь - один отзыв на игру
     FOREIGN KEY (game_id) REFERENCES games(id) ON DELETE CASCADE,
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );
 
-CREATE TABLE IF NOT EXISTS critic_reviews (
+-- Таблица логов аудита
+CREATE TABLE IF NOT EXISTS review_audit_log (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    game_id INT NOT NULL,
-    critic_id INT NOT NULL,
-    score DECIMAL(4,1) NOT NULL,
-    review_text TEXT NOT NULL,
-    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-    UNIQUE KEY uq_critic_reviews_game_critic (game_id, critic_id),
-    FOREIGN KEY (game_id) REFERENCES games(id) ON DELETE CASCADE,
-    FOREIGN KEY (critic_id) REFERENCES critics(id) ON DELETE CASCADE
+    review_id INT,
+    action_type ENUM('INSERT', 'UPDATE', 'DELETE'),
+    action_timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
+    old_score DECIMAL(4,1),
+    new_score DECIMAL(4,1),
+    user_info VARCHAR(255)
 );
+
+-- Функция статуса оценки
+DELIMITER //
+CREATE FUNCTION fn_get_rating_status(score DECIMAL(4,1)) 
+RETURNS VARCHAR(20)
+DETERMINISTIC
+BEGIN
+    DECLARE status VARCHAR(20);
+    IF score >= 9.0 THEN SET status = 'Masterpiece';
+    ELSEIF score >= 7.5 THEN SET status = 'Great';
+    ELSEIF score >= 5.0 THEN SET status = 'Mediocre';
+    ELSE SET status = 'Poor';
+    END IF;
+    RETURN status;
+END //
+DELIMITER ;
+
+-- Представление рейтинга игр
+CREATE OR REPLACE VIEW v_game_rankings AS
+SELECT 
+    g.id, 
+    g.title,
+    d.name as developer,
+    p.name as publisher,
+    COALESCE(avg_rev.score, 0) as total_score,
+    fn_get_rating_status(COALESCE(avg_rev.score, 0)) as rating_status,
+    RANK() OVER (ORDER BY COALESCE(avg_rev.score, 0) DESC) as global_rank -- Оконная функция для рейтинга
+FROM games g
+JOIN developers d ON g.developer_id = d.id
+JOIN publishers p ON g.publisher_id = p.id
+LEFT JOIN (SELECT game_id, AVG(score) as score FROM reviews GROUP BY game_id) avg_rev ON g.id = avg_rev.game_id;
+
+-- Хранимая Процедура: Добавление игры (атомарная операция)
+DELIMITER //
+CREATE PROCEDURE sp_add_game_full(
+    IN p_title VARCHAR(255),
+    IN p_release_date DATE,
+    IN p_description TEXT,
+    IN p_developer_id INT,
+    IN p_publisher_id INT,
+    IN p_cover_url VARCHAR(255)
+)
+BEGIN
+    -- Вставка основной записи игры
+    INSERT INTO games (title, release_date, description, developer_id, publisher_id, cover_url)
+    VALUES (p_title, p_release_date, p_description, p_developer_id, p_publisher_id, p_cover_url);
+    
+    -- Возвращаем ID созданной записи
+    SELECT LAST_INSERT_ID() AS game_id;
+END //
+DELIMITER ;
+
+-- Триггер: Автоматическое логирование при добавлении нового отзыва
+DELIMITER //
+CREATE TRIGGER tr_after_review_insert
+AFTER INSERT ON reviews
+FOR EACH ROW
+BEGIN
+    INSERT INTO review_audit_log (review_id, action_type, new_score, user_info)
+    VALUES (NEW.id, 'INSERT', NEW.score, CONCAT('User ID: ', NEW.user_id));
+END //
+DELIMITER ;

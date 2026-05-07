@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div style="background:#1e1e1e; padding:20px; border-radius:5px;">
+    <h1>🛡️ Audit Logs</h1>
+    <p>Automatic activity tracking via DB Triggers.</p>
+    
+    <table style="width:100%; border-collapse:collapse;">
+        <thead>
+            <tr style="border-bottom:1px solid #444;">
+                <th>ID</th>
+                <th>Action</th>
+                <th>Timestamp</th>
+                <th>Score</th>
+                <th>Info</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for log in logs %}
+            <tr style="border-bottom:1px solid #333;">
+                <td>#{{ log.id }}</td>
+                <td><b style="color:#8b5cf6;">{{ log.action_type }}</b></td>
+                <td>{{ log.action_timestamp }}</td>
+                <td>{{ log.new_score }}</td>
+                <td>{{ log.user_info }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}
