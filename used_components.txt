@@ -1,0 +1,47 @@
+Used Frameworks & Components Report:
+
+1. Dark Mode Configuration
+   - Source: https://flowbite.com/docs/customize/dark-mode/
+   - Implementation: base.html:L2 (class="dark")
+
+2. Navbar (Responsive)
+   - Source: https://flowbite.com/docs/components/navbar/
+   - Implementation: base.html:L14-45
+
+3. Game Cards (Standard Grid)
+   - Source: https://flowbite.com/docs/components/card/
+   - Implementation: index.html:L30-49
+
+4. Forms & Input Elements
+   - Source: https://flowbite.com/docs/components/forms/
+   - Implementation: 
+     - Search Bar: index.html:L6-18
+     - Review Form: game.html:L32-47
+     - Auth: login.html:L8-22, register.html:L8-25
+     - Add Game: add_game.html:L6-45
+
+5. Data Tables (Flowbite Base)
+   - Source: https://flowbite.com/docs/components/tables/
+   - Implementation: statistics.html:L13-41, logs.html:L11-36
+
+6. Status Badges
+   - Source: https://flowbite.com/docs/components/badge/
+   - Implementation: index.html:L34, statistics.html:L29-36, logs.html:L21-29
+
+7. AOS (Animate On Scroll) - Animation Framework
+   - Source: https://michalsnik.github.io/aos/
+   - Implementation: 
+     - Setup: base.html:L9, L60-67
+     - Triggers: index.html:L30, statistics.html:L6, logs.html:L3
+
+8. ApexCharts - Data Visualization
+   - Source: https://apexcharts.com/
+   - Implementation: 
+     - Setup: base.html:L11
+     - Charts: statistics.html:L51, L65, L74-106
+
+9. Simple-DataTables - Table Interactivity
+   - Source: https://fiduswriter.github.io/simple-datatables/
+   - Implementation:
+     - Setup: base.html:L10, L61
+     - Init: logs.html:L11, L38-44

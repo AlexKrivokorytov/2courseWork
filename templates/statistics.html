@@ -1,62 +1,94 @@
 {% extends "base.html" %}
-
-{% block title %}Statistics - GameBase{% endblock %}
-
 {% block content %}
-<div class="stats-container">
-    <h1>📊 System Statistics</h1>
-    <p>Demonstration of window functions and data aggregation.</p>
+<h1 class="text-4xl font-black text-white mb-10">Data <span class="text-purple-500">Analytics</span></h1>
 
-    <div class="stats-grid">
-        <!-- Глобальный рейтинг -->
-        <section class="stats-card">
-            <h2>🏆 Top-10 Games (Global)</h2>
-            <table>
-                <thead>
+<div class="grid grid-cols-1 xl:grid-cols-2 gap-8 mb-12">
+    <!-- Top 10 Games -->
+    <div data-aos="fade-right" class="p-8 bg-gray-800 border border-gray-700 rounded-3xl shadow-xl">
+        <h2 class="text-2xl font-bold text-white mb-6 flex items-center">
+            <svg class="w-6 h-6 mr-2 text-yellow-400" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
+            Global Rankings (Top 10)
+        </h2>
+        <div class="relative overflow-x-auto rounded-xl">
+            <table class="w-full text-sm text-left text-gray-400">
+                <thead class="text-xs uppercase bg-gray-900/50 text-gray-400">
                     <tr>
-                        <th>Rank</th>
-                        <th>Title</th>
-                        <th>Score</th>
+                        <th class="px-4 py-3">Rank</th>
+                        <th class="px-4 py-3">Game</th>
+                        <th class="px-4 py-3">Score</th>
+                        <th class="px-4 py-3">Status</th>
                     </tr>
                 </thead>
                 <tbody>
-                    {% for rank in rankings %}
-                    <tr>
-                        <td>#{{ rank.global_rank }}</td>
-                        <td>{{ rank.title }}</td>
-                        <td>{{ rank.total_score }}</td>
+                    {% for r in rankings %}
+                    <tr class="border-b border-gray-700 hover:bg-gray-700/50 transition-colors">
+                        <td class="px-4 py-4 font-black text-purple-400">#{{ r.global_rank }}</td>
+                        <td class="px-4 py-4 font-bold text-white">{{ r.title }}</td>
+                        <td class="px-4 py-4 text-white">{{ r.total_score }}</td>
+                        <td class="px-4 py-4">
+                            <span class="px-2 py-1 rounded text-[10px] font-bold uppercase
+                                {{ 'bg-green-900 text-green-300' if r.rating_status == 'Masterpiece' }}
+                                {{ 'bg-blue-900 text-blue-300' if r.rating_status == 'Great' }}
+                                {{ 'bg-gray-700 text-gray-300' if r.rating_status == 'Mediocre' }}
+                                {{ 'bg-red-900 text-red-300' if r.rating_status == 'Poor' }}
+                            ">
+                                {{ r.rating_status }}
+                            </span>
+                        </td>
                     </tr>
                     {% endfor %}
                 </tbody>
             </table>
-        </section>
+        </div>
+    </div>
 
-        <!-- Распределение и Активность -->
-        <section class="stats-card">
-            <h2>📊 Score Distribution</h2>
-            <div class="score-dist-container">
-                {% for item in score_dist %}
-                <div class="dist-row">
-                    <span class="dist-label">{{ item.rating }}⭐</span>
-                    <div class="dist-bar-bg">
-                        <div class="dist-bar-fill" style="width: {{ (item.count * 10) }}px; max-width: 100%;"></div>
-                    </div>
-                    <span class="dist-count">{{ item.count }}</span>
-                </div>
-                {% endfor %}
-            </div>
+    <!-- Right Column: Charts -->
+    <div class="space-y-8">
+        <!-- Rating Distribution (ApexCharts) -->
+        <div data-aos="fade-left" class="p-8 bg-gray-800 border border-gray-700 rounded-3xl shadow-xl">
+            <h2 class="text-2xl font-bold text-white mb-4">Rating Distribution</h2>
+            <div id="distChart"></div>
+        </div>
 
-            <hr>
-
-            <h2>📈 Monthly Activity</h2>
-            <div class="compact-growth-chart">
-                {% for day in review_growth %}
-                <div class="chart-bar" style="height: {{ day.monthly_reviews * 2 }}px;" title="{{ day.date }}">
-                    <span class="bar-value">{{ day.monthly_reviews }}</span>
-                </div>
-                {% endfor %}
-            </div>
-        </section>
+        <!-- Activity Growth (ApexCharts) -->
+        <div data-aos="fade-left" data-aos-delay="200" class="p-8 bg-gray-800 border border-gray-700 rounded-3xl shadow-xl">
+            <h2 class="text-2xl font-bold text-white mb-4">Monthly Activity</h2>
+            <div id="activityChart"></div>
+        </div>
     </div>
 </div>
+
+<script>
+    // Настройка графиков ApexCharts
+    document.addEventListener("DOMContentLoaded", function() {
+        // Данные из Flask
+        const distData = {{ score_dist|tojson }};
+        const growthData = {{ review_growth|tojson }};
+
+        // 1. График распределения (Donut)
+        new ApexCharts(document.querySelector("#distChart"), {
+            series: distData.map(d => d.count),
+            labels: distData.map(d => d.rating + " Stars"),
+            chart: { type: 'donut', height: 300, foreColor: '#9ca3af' },
+            theme: { monochrome: { enabled: true, color: '#8b5cf6' } },
+            legend: { position: 'bottom' },
+            plotOptions: { pie: { donut: { size: '70%' } } }
+        }).render();
+
+        // 2. График активности (Area)
+        new ApexCharts(document.querySelector("#activityChart"), {
+            series: [{
+                name: 'Reviews',
+                data: growthData.map(d => d.monthly_reviews)
+            }],
+            chart: { type: 'area', height: 250, toolbar: { show: false }, foreColor: '#9ca3af' },
+            colors: ['#a855f7'],
+            fill: { type: 'gradient', gradient: { shadeIntensity: 1, opacityFrom: 0.7, opacityTo: 0.3 } },
+            dataLabels: { enabled: false },
+            stroke: { curve: 'smooth', width: 3 },
+            xaxis: { categories: growthData.map(d => d.date) },
+            grid: { borderColor: '#374151' }
+        }).render();
+    });
+</script>
 {% endblock %}

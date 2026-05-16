@@ -50,12 +50,24 @@ def game(game_id):
 @app.route("/add-game", methods=["GET", "POST"])
 def add_game():
     if request.method == "POST":
-        db = get_db(); cur = db.cursor()
-        # Вызов хранимой процедуры
-        cur.callproc("sp_add_game_full", (request.form["title"], request.form["release_date"], request.form["description"], request.form["developer_id"], request.form["publisher_id"], request.form.get("cover_url")))
-        for res in cur.stored_results(): gid = res.fetchone()[0]
-        db.commit(); cur.close(); db.close()
-        return redirect(url_for("game", game_id=gid))
+        title = request.form.get("title", "").strip()
+        date = request.form.get("release_date")
+        desc = request.form.get("description", "").strip()
+        
+        if not title or not date or not desc:
+            flash("All fields are required!")
+            return redirect(url_for("add_game"))
+
+        try:
+            db = get_db(); cur = db.cursor()
+            cur.callproc("sp_add_game_full", (title, date, desc, request.form["developer_id"], request.form["publisher_id"], request.form.get("cover_url")))
+            for res in cur.stored_results(): gid = res.fetchone()[0]
+            db.commit(); cur.close(); db.close()
+            flash(f"Game '{title}' added successfully!")
+            return redirect(url_for("game", game_id=gid))
+        except mysql.connector.Error as err:
+            flash(f"Error: {err.msg}")
+            return redirect(url_for("add_game"))
     
     devs = query_db("SELECT id, name FROM developers")
     pubs = query_db("SELECT id, name FROM publishers")
@@ -68,9 +80,10 @@ def statistics():
     # Динамика за полгода
     growth = query_db("SELECT DATE_FORMAT(created_at, '%b') as date, COUNT(*) as monthly_reviews FROM reviews GROUP BY 1 ORDER BY MIN(created_at) DESC LIMIT 6")
     growth.reverse()
+    max_growth = max([m['monthly_reviews'] for m in growth]) if growth else 1
     # Распределение
     dist = query_db("SELECT FLOOR(score) as rating, COUNT(*) as count FROM reviews GROUP BY 1 ORDER BY 1 DESC")
-    return render_template("statistics.html", rankings=rankings, review_growth=growth, score_dist=dist)
+    return render_template("statistics.html", rankings=rankings, review_growth=growth, max_growth=max_growth, score_dist=dist)
 
 @app.route("/logs")
 def logs():
@@ -80,10 +93,30 @@ def logs():
 @app.route("/game/<int:game_id>/review", methods=["POST"])
 def add_review(game_id):
     if "user_id" not in session: return redirect(url_for("login"))
-    db = get_db(); cur = db.cursor()
-    cur.execute("INSERT INTO reviews (game_id, user_id, score, review_text) VALUES (%s,%s,%s,%s)", (game_id, session["user_id"], request.form["score"], request.form["review_text"]))
-    db.commit(); cur.close(); db.close()
-    flash("Review added!"); return redirect(url_for("game", game_id=game_id))
+    
+    score = request.form.get("score")
+    text = request.form.get("review_text", "").strip()
+    
+    if not score or not text:
+        flash("Score and text are required!")
+        return redirect(url_for("game", game_id=game_id))
+    
+    try:
+        val_score = float(score)
+        if not (0 <= val_score <= 10): raise ValueError()
+    except ValueError:
+        flash("Score must be a number between 0 and 10!")
+        return redirect(url_for("game", game_id=game_id))
+
+    try:
+        db = get_db(); cur = db.cursor()
+        cur.execute("INSERT INTO reviews (game_id, user_id, score, review_text) VALUES (%s,%s,%s,%s)", (game_id, session["user_id"], val_score, text))
+        db.commit(); cur.close(); db.close()
+        flash("Review added!"); 
+    except mysql.connector.Error:
+        flash("You have already reviewed this game!")
+    
+    return redirect(url_for("game", game_id=game_id))
 
 @app.route("/login", methods=["GET", "POST"])
 def login():
@@ -91,17 +124,31 @@ def login():
         u = query_db("SELECT * FROM users WHERE username=%s", (request.form["username"],), one=True)
         if u and check_password_hash(u["password_hash"], request.form["password"]):
             session["user_id"], session["username"] = u["id"], u["username"]
+            flash(f"Welcome back, {u['username']}!")
             return redirect(url_for("index"))
-        flash("Error!")
+        flash("Invalid username or password!")
     return render_template("login.html")
 
 @app.route("/register", methods=["GET", "POST"])
 def register():
     if request.method == "POST":
-        db = get_db(); cur = db.cursor()
-        cur.execute("INSERT INTO users (username, email, password_hash) VALUES (%s,%s,%s)", (request.form["username"], request.form["email"], generate_password_hash(request.form["password"])))
-        db.commit(); cur.close(); db.close()
-        return redirect(url_for("login"))
+        user = request.form.get("username", "").strip()
+        email = request.form.get("email", "").strip()
+        pwd = request.form.get("password")
+        
+        if not user or not email or not pwd:
+            flash("All fields are required!")
+            return redirect(url_for("register"))
+
+        try:
+            db = get_db(); cur = db.cursor()
+            cur.execute("INSERT INTO users (username, email, password_hash) VALUES (%s,%s,%s)", (user, email, generate_password_hash(pwd)))
+            db.commit(); cur.close(); db.close()
+            flash("Registration successful! Please login.")
+            return redirect(url_for("login"))
+        except mysql.connector.Error:
+            flash("Username or Email already exists!")
+            return redirect(url_for("register"))
     return render_template("register.html")
 
 @app.route("/logout")

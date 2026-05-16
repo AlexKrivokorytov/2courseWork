@@ -1,29 +1,49 @@
 {% extends "base.html" %}
-
 {% block content %}
-<header>
-    <h1>🎮 Games Catalog</h1>
-    <form action="{{ url_for('index') }}" method="GET" style="display:flex; gap:10px; margin-bottom:20px;">
-        <input type="text" name="search" placeholder="Search..." value="{{ search }}">
-        <select name="sort" onchange="this.form.submit()">
-            <option value="title" {% if sort == 'title' %}selected{% endif %}>By Title</option>
-            <option value="release_date" {% if sort == 'release_date' %}selected{% endif %}>Newest First</option>
-            <option value="user_score" {% if sort == 'user_score' %}selected{% endif %}>Top Rated</option>
-        </select>
-        <button type="submit">Search</button>
+<div class="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
+    <h1 class="text-3xl font-extrabold tracking-tight text-white">Explore <span class="text-purple-500">Games</span></h1>
+    
+    <form class="w-full md:max-w-md">
+        <label for="default-search" class="mb-2 text-sm font-medium text-gray-900 sr-only dark:text-white">Search</label>
+        <div class="relative">
+            <div class="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none">
+                <svg class="w-4 h-4 text-gray-500 dark:text-gray-400" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
+                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"/>
+                </svg>
+            </div>
+            <input type="search" name="search" value="{{ search }}" id="default-search" class="block w-full p-4 ps-10 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-purple-500 focus:border-purple-500 dark:bg-gray-800 dark:border-gray-700 dark:placeholder-gray-400 dark:text-white dark:focus:ring-purple-500 dark:focus:border-purple-500" placeholder="Search games..." required>
+            <button type="submit" class="text-white absolute end-2.5 bottom-2.5 bg-purple-700 hover:bg-purple-800 focus:ring-4 focus:outline-none focus:ring-purple-300 font-medium rounded-lg text-sm px-4 py-2 dark:bg-purple-600 dark:hover:bg-purple-700 dark:focus:ring-purple-800">Search</button>
+        </div>
     </form>
-</header>
+</div>
 
-<div class="game-grid">
-    {% for game in games %}
-    <div class="game-card">
-        <a href="{{ url_for('game', game_id=game.id) }}">
-            <img src="{{ game.cover_url or 'https://via.placeholder.com/200x300' }}" class="card-image">
+<div class="flex mb-6 space-x-2">
+    <span class="text-gray-400 text-sm self-center">Sort by:</span>
+    <a href="{{ url_for('index', search=search, sort='title') }}" class="px-3 py-1 text-xs font-medium rounded-full {{ 'bg-purple-600 text-white' if sort=='title' else 'bg-gray-800 text-gray-400 hover:bg-gray-700' }}">Title</a>
+    <a href="{{ url_for('index', search=search, sort='release_date') }}" class="px-3 py-1 text-xs font-medium rounded-full {{ 'bg-purple-600 text-white' if sort=='release_date' else 'bg-gray-800 text-gray-400 hover:bg-gray-700' }}">Newest</a>
+    <a href="{{ url_for('index', search=search, sort='user_score') }}" class="px-3 py-1 text-xs font-medium rounded-full {{ 'bg-purple-600 text-white' if sort=='user_score' else 'bg-gray-800 text-gray-400 hover:bg-gray-700' }}">Top Rated</a>
+</div>
+
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+    {% for g in games %}
+    <div data-aos="fade-up" data-aos-delay="{{ loop.index0 * 50 }}" class="bg-gray-800 border border-gray-700 rounded-xl shadow flex flex-col group overflow-hidden hover:border-purple-500 transition-all">
+        <a href="{{ url_for('game', game_id=g.id) }}" class="relative overflow-hidden aspect-[3/4]">
+            <img class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105" src="{{ g.cover_url or 'https://via.placeholder.com/300x400?text=No+Cover' }}" alt="{{ g.title }}" />
+            <div class="absolute top-2 right-2">
+                <span class="bg-purple-100 text-purple-800 text-xs font-bold px-2.5 py-0.5 rounded dark:bg-purple-900 dark:text-purple-300 border border-purple-400">
+                    {{ g.avg_score or '0.0' }}
+                </span>
+            </div>
         </a>
-        <div class="card-content">
-            <h3>{{ game.title }}</h3>
-            <p>Разработчик: {{ game.developer }}</p>
-            <div class="score-badge">⭐ {{ game.avg_score or '—' }}</div>
+        <div class="p-5 flex flex-col flex-grow">
+            <a href="{{ url_for('game', game_id=g.id) }}">
+                <h5 class="mb-2 text-xl font-bold tracking-tight text-gray-900 dark:text-white line-clamp-1 group-hover:text-purple-400">{{ g.title }}</h5>
+            </a>
+            <p class="mb-3 text-sm font-normal text-gray-700 dark:text-gray-400 line-clamp-2">{{ g.description }}</p>
+            <div class="mt-auto pt-4 flex justify-between items-center border-t border-gray-700">
+                <span class="text-xs text-gray-500 italic">{{ g.developer }}</span>
+                <span class="text-xs text-gray-500">{{ g.review_count }} reviews</span>
+            </div>
         </div>
     </div>
     {% endfor %}

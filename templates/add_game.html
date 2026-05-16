@@ -1,25 +1,52 @@
 {% extends "base.html" %}
-
 {% block content %}
-<div style="background:#1e1e1e; padding:20px; border-radius:5px;">
-    <h1>Add New Game</h1>
-    <form method="post">
-        <label>Title:</label><input type="text" name="title" required>
-        <label>Release Date:</label><input type="date" name="release_date" required>
-        <label>Cover URL:</label><input type="text" name="cover_url">
-        
-        <label>Developer:</label>
-        <select name="developer_id" required>
-            {% for d in developers %}<option value="{{ d.id }}">{{ d.name }}</option>{% endfor %}
-        </select>
+<div class="max-w-3xl mx-auto bg-gray-800 p-8 rounded-2xl border border-gray-700 shadow-2xl">
+    <h1 class="text-3xl font-black text-white mb-8">Add New <span class="text-purple-500">Game</span></h1>
+    
+    <form action="{{ url_for('add_game') }}" method="POST" class="space-y-6">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+                <label for="title" class="block mb-2 text-sm font-medium text-white">Game Title</label>
+                <input type="text" name="title" id="title" class="bg-gray-700 border border-gray-600 text-white text-sm rounded-lg focus:ring-purple-500 focus:border-purple-500 block w-full p-2.5" placeholder="Eldon Ring" required>
+            </div>
+            <div>
+                <label for="release_date" class="block mb-2 text-sm font-medium text-white">Release Date</label>
+                <input type="date" name="release_date" id="release_date" class="bg-gray-700 border border-gray-600 text-white text-sm rounded-lg focus:ring-purple-500 focus:border-purple-500 block w-full p-2.5" required>
+            </div>
+        </div>
 
-        <label>Publisher:</label>
-        <select name="publisher_id" required>
-            {% for p in publishers %}<option value="{{ p.id }}">{{ p.name }}</option>{% endfor %}
-        </select>
+        <div>
+            <label for="description" class="block mb-2 text-sm font-medium text-white">Description</label>
+            <textarea name="description" id="description" rows="4" class="block p-2.5 w-full text-sm text-white bg-gray-700 rounded-lg border border-gray-600 focus:ring-purple-500 focus:border-purple-500" placeholder="Describe the game..." required></textarea>
+        </div>
 
-        <label>Description:</label><textarea name="description" rows="4" required></textarea>
-        <button type="submit">Save Game</button>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+                <label for="developer_id" class="block mb-2 text-sm font-medium text-white">Developer</label>
+                <select name="developer_id" id="developer_id" class="bg-gray-700 border border-gray-600 text-white text-sm rounded-lg focus:ring-purple-500 focus:border-purple-500 block w-full p-2.5">
+                    {% for d in developers %}
+                        <option value="{{ d.id }}">{{ d.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div>
+                <label for="publisher_id" class="block mb-2 text-sm font-medium text-white">Publisher</label>
+                <select name="publisher_id" id="publisher_id" class="bg-gray-700 border border-gray-600 text-white text-sm rounded-lg focus:ring-purple-500 focus:border-purple-500 block w-full p-2.5">
+                    {% for p in publishers %}
+                        <option value="{{ p.id }}">{{ p.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+
+        <div>
+            <label for="cover_url" class="block mb-2 text-sm font-medium text-white">Cover Image URL</label>
+            <input type="url" name="cover_url" id="cover_url" class="bg-gray-700 border border-gray-600 text-white text-sm rounded-lg focus:ring-purple-500 focus:border-purple-500 block w-full p-2.5" placeholder="https://...">
+        </div>
+
+        <button type="submit" class="w-full text-white bg-purple-600 hover:bg-purple-700 focus:ring-4 focus:outline-none focus:ring-purple-300 font-bold rounded-xl text-lg px-5 py-3 text-center dark:bg-purple-600 dark:hover:bg-purple-700 dark:focus:ring-purple-900 transition-all">
+            Add Game to Database
+        </button>
     </form>
 </div>
 {% endblock %}

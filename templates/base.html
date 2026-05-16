@@ -1,31 +1,69 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="en" class="dark">
 <head>
     <meta charset="UTF-8">
-    <title>Игровая База</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GameBase - Gaming Review Portal</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.3.0/flowbite.min.css" rel="stylesheet" />
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/simple-datatables@latest/dist/style.css" rel="stylesheet" type="text/css">
+    <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
 </head>
-<body>
-<div class="wrap">
-    <nav>
-        <a href="{{ url_for('index') }}">🏠 Home</a>
-        <a href="{{ url_for('add_game') }}">➕ Add Game</a>
-        <a href="{{ url_for('statistics') }}">📊 Statistics</a>
-        <a href="{{ url_for('logs') }}">🛡️ Logs</a>
-        {% if session.username %}
-            <span style="margin-left:auto">👤 {{ session.username }}</span>
-            <a href="{{ url_for('logout') }}">Logout</a>
-        {% else %}
-            <a href="{{ url_for('register') }}" style="margin-left:auto">Register</a>
-            <a href="{{ url_for('login') }}">Login</a>
-        {% endif %}
+<body class="bg-gray-900 text-white antialiased">
+    <nav class="bg-gray-800 border-b border-gray-700">
+        <div class="max-w-screen-xl flex flex-wrap items-center justify-between mx-auto p-4">
+            <a href="{{ url_for('index') }}" class="flex items-center space-x-3 rtl:space-x-reverse">
+                <span class="self-center text-2xl font-bold whitespace-nowrap dark:text-purple-400">GameBase</span>
+            </a>
+            <button data-collapse-toggle="navbar-cta" type="button" class="inline-flex items-center p-2 w-10 h-10 justify-center text-sm text-gray-500 rounded-lg md:hidden hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:text-gray-400 dark:hover:bg-gray-700 dark:focus:ring-gray-600" aria-controls="navbar-cta" aria-expanded="false">
+                <span class="sr-only">Open main menu</span>
+                <svg class="w-5 h-5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 17 14">
+                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M1 1h15M1 7h15M1 13h15"/>
+                </svg>
+            </button>
+            <div class="flex md:order-2 space-x-3 md:space-x-0 rtl:space-x-reverse">
+                {% if session.username %}
+                    <span class="hidden lg:inline-block text-gray-400 mr-4 self-center text-sm">Hello, <span class="text-purple-300 font-medium">{{ session.username }}</span></span>
+                    <a href="{{ url_for('logout') }}" class="text-white bg-purple-700 hover:bg-purple-800 focus:ring-4 focus:outline-none focus:ring-purple-300 font-medium rounded-lg text-sm px-4 py-2 text-center dark:bg-purple-600 dark:hover:bg-purple-700 dark:focus:ring-purple-900">Logout</a>
+                {% else %}
+                    <div class="flex items-center gap-2">
+                        <a href="{{ url_for('login') }}" class="text-gray-300 hover:text-white font-medium text-sm px-4 py-2">Login</a>
+                        <a href="{{ url_for('register') }}" class="text-white bg-purple-700 hover:bg-purple-800 focus:ring-4 focus:outline-none focus:ring-purple-300 font-medium rounded-lg text-sm px-4 py-2 text-center dark:bg-purple-600 dark:hover:bg-purple-700 dark:focus:ring-purple-900">Register</a>
+                    </div>
+                {% endif %}
+            </div>
+            <div class="items-center justify-between hidden w-full md:flex md:w-auto md:order-1" id="navbar-cta">
+                <ul class="flex flex-col font-medium p-4 md:p-0 mt-4 border border-gray-700 rounded-lg md:space-x-8 rtl:space-x-reverse md:flex-row md:mt-0 md:border-0 bg-gray-800 md:bg-transparent">
+                    <li><a href="{{ url_for('index') }}" class="block py-2 px-3 md:p-0 text-white bg-purple-700 rounded md:bg-transparent md:text-purple-700 md:dark:text-purple-400" aria-current="page">Home</a></li>
+                    <li><a href="{{ url_for('add_game') }}" class="block py-2 px-3 md:p-0 text-gray-900 rounded hover:bg-gray-100 md:hover:bg-transparent md:hover:text-purple-700 dark:text-white dark:hover:text-purple-400">Add Game</a></li>
+                    <li><a href="{{ url_for('statistics') }}" class="block py-2 px-3 md:p-0 text-gray-900 rounded hover:bg-gray-100 md:hover:bg-transparent md:hover:text-purple-700 dark:text-white dark:hover:text-purple-400">Statistics</a></li>
+                    <li><a href="{{ url_for('logs') }}" class="block py-2 px-3 md:p-0 text-gray-900 rounded hover:bg-gray-100 md:hover:bg-transparent md:hover:text-purple-700 dark:text-white dark:hover:text-purple-400">Audit Logs</a></li>
+                </ul>
+            </div>
+        </div>
     </nav>
 
-    {% with messages = get_flashed_messages() %}{% for m in messages %}
-        <article>{{ m }}</article>
-    {% endfor %}{% endwith %}
+    <main class="max-w-screen-xl mx-auto p-6">
+        {% with messages = get_flashed_messages() %}
+            {% for m in messages %}
+                <div class="p-4 mb-6 text-sm text-blue-800 rounded-lg bg-blue-50 dark:bg-gray-800 dark:text-blue-400 border border-blue-300 dark:border-blue-900" role="alert">
+                    <span class="font-medium">Notice:</span> {{ m }}
+                </div>
+            {% endfor %}
+        {% endwith %}
 
-    {% block content %}{% endblock %}
-</div>
+        {% block content %}{% endblock %}
+    </main>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.3.0/flowbite.min.js"></script>
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/simple-datatables@latest" type="text/javascript"></script>
+    <script>
+        AOS.init({
+            duration: 800,
+            once: true,
+        });
+    </script>
 </body>
 </html>

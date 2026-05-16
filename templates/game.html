@@ -1,32 +1,86 @@
 {% extends "base.html" %}
-
 {% block content %}
-<div style="display:flex; gap:20px; background:#1e1e1e; padding:20px; border-radius:5px;">
-    <img src="{{ game.cover_url or 'https://via.placeholder.com/200x300' }}" style="width:200px; border-radius:5px;">
-    <div>
-        <h1>{{ game.title }}</h1>
-        <p><b>Date:</b> {{ game.release_date }} | <b>Studio:</b> {{ game.developer }}</p>
-        <p>{{ game.description }}</p>
-        <h2 style="color:#ffca28;">⭐ {{ game.avg_score or '0' }} / 10</h2>
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-12">
+    <!-- Game Cover -->
+    <div class="lg:col-span-1">
+        <img class="w-full rounded-2xl shadow-2xl border-4 border-gray-800" src="{{ game.cover_url or 'https://via.placeholder.com/400x600' }}" alt="{{ game.title }}">
+    </div>
+
+    <!-- Game Info -->
+    <div class="lg:col-span-2">
+        <div class="flex flex-wrap items-center gap-4 mb-4">
+            <h1 class="text-5xl font-black text-white">{{ game.title }}</h1>
+            <span class="bg-purple-600 text-white text-lg font-bold px-4 py-1 rounded-full shadow-lg">
+                ★ {{ reviews|length }} Reviews
+            </span>
+        </div>
+        
+        <div class="flex items-center space-x-4 mb-6">
+            <span class="text-gray-400">Released: <span class="text-white font-medium">{{ game.release_date }}</span></span>
+            <span class="text-gray-600">|</span>
+            <span class="text-gray-400">Developer: <span class="text-purple-400 font-medium">{{ game.developer }}</span></span>
+        </div>
+
+        <p class="text-lg text-gray-300 leading-relaxed mb-8 bg-gray-800/50 p-6 rounded-xl border border-gray-700">
+            {{ game.description }}
+        </p>
+
+        <!-- Review Form Section -->
+        <section class="bg-gray-800 rounded-2xl p-8 border border-gray-700 shadow-xl">
+            <h2 class="text-2xl font-bold text-white mb-6">Write a Review</h2>
+            {% if session.username %}
+            <form action="{{ url_for('add_review', game_id=game.id) }}" method="POST">
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-4">
+                    <div class="md:col-span-1">
+                        <label for="score" class="block mb-2 text-sm font-medium text-white">Your Score (0-10)</label>
+                        <input type="number" name="score" id="score" step="0.1" min="0" max="10" class="bg-gray-700 border border-gray-600 text-white text-sm rounded-lg focus:ring-purple-500 focus:border-purple-500 block w-full p-2.5" placeholder="8.5" required>
+                    </div>
+                    <div class="md:col-span-3">
+                        <label for="review_text" class="block mb-2 text-sm font-medium text-white">Review Text</label>
+                        <textarea name="review_text" id="review_text" rows="4" class="block p-2.5 w-full text-sm text-white bg-gray-700 rounded-lg border border-gray-600 focus:ring-purple-500 focus:border-purple-500" placeholder="What did you think of the game?" required></textarea>
+                    </div>
+                </div>
+                <button type="submit" class="w-full md:w-auto px-8 py-3 text-base font-bold text-white bg-purple-700 rounded-xl hover:bg-purple-800 focus:ring-4 focus:ring-purple-900 transition-all">
+                    Submit Review
+                </button>
+            </form>
+            {% else %}
+            <div class="text-center py-4">
+                <p class="text-gray-400 mb-4">You must be logged in to leave a review.</p>
+                <a href="{{ url_for('login') }}" class="text-purple-400 hover:underline font-bold">Login here →</a>
+            </div>
+            {% endif %}
+        </section>
     </div>
 </div>
 
-<div style="margin-top:20px;">
-    <h3>Player Reviews</h3>
+<hr class="h-px my-12 bg-gray-200 border-0 dark:bg-gray-700">
+
+<!-- Reviews List -->
+<h2 class="text-3xl font-black text-white mb-8">Community <span class="text-purple-500">Reviews</span></h2>
+<div class="space-y-6">
     {% for r in reviews %}
-    <div style="background:#1e1e1e; padding:10px; margin-bottom:10px; border-left:4px solid #8b5cf6;">
-        <b>{{ r.username }}</b> <span style="color:#ffca28;">(Score: {{ r.score }})</span>
-        <p>{{ r.review_text }}</p>
+    <div class="p-6 bg-gray-800 border border-gray-700 rounded-2xl shadow hover:bg-gray-750 transition-colors">
+        <div class="flex justify-between items-start mb-4">
+            <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 bg-purple-900 rounded-full flex items-center justify-center font-bold text-purple-200">
+                    {{ r.username[0]|upper }}
+                </div>
+                <div>
+                    <h4 class="font-bold text-white">{{ r.username }}</h4>
+                    <span class="text-xs text-gray-500">{{ r.created_at }}</span>
+                </div>
+            </div>
+            <span class="bg-gray-900 text-purple-400 text-sm font-black px-3 py-1 rounded-lg border border-purple-900">
+                SCORE: {{ r.score }}
+            </span>
+        </div>
+        <p class="text-gray-300 italic leading-relaxed">"{{ r.review_text }}"</p>
+    </div>
+    {% else %}
+    <div class="text-center py-12 bg-gray-800/20 rounded-2xl border-2 border-dashed border-gray-700">
+        <p class="text-gray-500 text-xl">No reviews yet. Be the first!</p>
     </div>
     {% endfor %}
-
-    {% if session.username %}
-    <form action="{{ url_for('add_review', game_id=game.id) }}" method="POST" style="background:#1e1e1e; padding:15px; margin-top:20px;">
-        <h4>Leave a Review</h4>
-        <input type="number" name="score" step="0.1" min="0" max="10" placeholder="Score (0-10)" required>
-        <textarea name="review_text" placeholder="Your thoughts..." required></textarea>
-        <button type="submit">Publish</button>
-    </form>
-    {% endif %}
 </div>
 {% endblock %}

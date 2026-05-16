@@ -1,31 +1,79 @@
 {% extends "base.html" %}
-
 {% block content %}
-<div style="background:#1e1e1e; padding:20px; border-radius:5px;">
-    <h1>🛡️ Audit Logs</h1>
-    <p>Automatic activity tracking via DB Triggers.</p>
-    
-    <table style="width:100%; border-collapse:collapse;">
+<div class="flex justify-between items-center mb-10" data-aos="fade-down">
+    <h1 class="text-3xl font-black text-white">System <span class="text-purple-500">Audit Logs</span></h1>
+    <span class="bg-gray-800 text-gray-400 text-xs font-medium px-4 py-2 rounded-lg border border-gray-700">
+        Trigger-based monitoring active
+    </span>
+</div>
+
+<div class="p-6 bg-gray-800 rounded-3xl border border-gray-700 shadow-xl" data-aos="zoom-in">
+    <table id="auditTable" class="w-full text-sm text-left text-gray-400">
         <thead>
-            <tr style="border-bottom:1px solid #444;">
-                <th>ID</th>
-                <th>Action</th>
-                <th>Timestamp</th>
-                <th>Score</th>
-                <th>Info</th>
+            <tr>
+                <th class="px-6 py-4">ID</th>
+                <th class="px-6 py-4">Action</th>
+                <th class="px-6 py-4">Score (Old → New)</th>
+                <th class="px-6 py-4">Context</th>
+                <th class="px-6 py-4">Timestamp</th>
             </tr>
         </thead>
         <tbody>
-            {% for log in logs %}
-            <tr style="border-bottom:1px solid #333;">
-                <td>#{{ log.id }}</td>
-                <td><b style="color:#8b5cf6;">{{ log.action_type }}</b></td>
-                <td>{{ log.action_timestamp }}</td>
-                <td>{{ log.new_score }}</td>
-                <td>{{ log.user_info }}</td>
+            {% for l in logs %}
+            <tr class="hover:bg-gray-700/50 transition-colors">
+                <td class="px-6 py-4 font-bold text-gray-500">#{{ l.id }}</td>
+                <td class="px-6 py-4">
+                    <span class="px-2 py-1 rounded-full text-[10px] font-bold uppercase
+                        {{ 'bg-green-900 text-green-300' if l.action_type == 'INSERT' }}
+                        {{ 'bg-blue-900 text-blue-300' if l.action_type == 'UPDATE' }}
+                        {{ 'bg-red-900 text-red-300' if l.action_type == 'DELETE' }}
+                    ">
+                        {{ l.action_type }}
+                    </span>
+                </td>
+                <td class="px-6 py-4 font-mono">
+                    {% if l.old_score %}
+                        <span class="text-red-400">{{ l.old_score }}</span> → 
+                    {% endif %}
+                    <span class="text-green-400 font-bold">{{ l.new_score or '0.0' }}</span>
+                </td>
+                <td class="px-6 py-4">{{ l.user_info }}</td>
+                <td class="px-6 py-4 text-xs">{{ l.action_timestamp }}</td>
             </tr>
             {% endfor %}
         </tbody>
     </table>
 </div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const dataTable = new simpleDatatables.DataTable("#auditTable", {
+            searchable: true,
+            fixedHeight: false,
+            perPage: 10
+        });
+    });
+</script>
+
+<style>
+    /* Кастомизация темной темы для DataTables */
+    .datatable-input {
+        background-color: #1f2937 !important;
+        border-color: #374151 !important;
+        color: white !important;
+        border-radius: 8px !important;
+    }
+    .datatable-selector {
+        background-color: #1f2937 !important;
+        color: white !important;
+        border-color: #374151 !important;
+    }
+    .datatable-pagination a {
+        color: #9ca3af !important;
+    }
+    .datatable-pagination .active a {
+        background-color: #7c3aed !important;
+        color: white !important;
+    }
+</style>
 {% endblock %}
