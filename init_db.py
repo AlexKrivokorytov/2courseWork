@@ -98,17 +98,17 @@ def main():
         
         # Тестовые пользователи (пароль везде 'password123' в зашифрованном виде)
         """
-        INSERT INTO users (username, email, password_hash, created_at) VALUES
-        ('alex', 'alex@example.com', 'scrypt:32768:8:1$uH3W...', '2025-01-01 10:00:00'),
-        ('denis', 'denis@example.com', 'scrypt:32768:8:1$uH3W...', '2025-01-02 11:30:00'),
-        ('maria', 'maria@example.com', 'scrypt:32768:8:1$uH3W...', '2025-01-03 14:15:00'),
-        ('john', 'john@example.com', 'scrypt:32768:8:1$uH3W...', '2025-01-04 09:20:00'),
-        ('sarah', 'sarah@example.com', 'scrypt:32768:8:1$uH3W...', '2025-01-05 18:45:00'),
-        ('mike', 'mike@example.com', 'scrypt:32768:8:1$uH3W...', '2025-01-06 20:10:00'),
-        ('emma', 'emma@example.com', 'scrypt:32768:8:1$uH3W...', '2025-01-07 12:05:00'),
-        ('lucas', 'lucas@example.com', 'scrypt:32768:8:1$uH3W...', '2025-01-08 16:30:00'),
-        ('olivia', 'olivia@example.com', 'scrypt:32768:8:1$uH3W...', '2025-01-09 08:50:00'),
-        ('noah', 'noah@example.com', 'scrypt:32768:8:1$uH3W...', '2025-01-10 22:15:00')
+        INSERT INTO users (username, email, password_hash, is_admin, created_at) VALUES
+        ('alex', 'alex@example.com', 'scrypt:32768:8:1$uH3W...', 1, '2025-01-01 10:00:00'),
+        ('denis', 'denis@example.com', 'scrypt:32768:8:1$uH3W...', 0, '2025-01-02 11:30:00'),
+        ('maria', 'maria@example.com', 'scrypt:32768:8:1$uH3W...', 0, '2025-01-03 14:15:00'),
+        ('john', 'john@example.com', 'scrypt:32768:8:1$uH3W...', 0, '2025-01-04 09:20:00'),
+        ('sarah', 'sarah@example.com', 'scrypt:32768:8:1$uH3W...', 0, '2025-01-05 18:45:00'),
+        ('mike', 'mike@example.com', 'scrypt:32768:8:1$uH3W...', 0, '2025-01-06 20:10:00'),
+        ('emma', 'emma@example.com', 'scrypt:32768:8:1$uH3W...', 0, '2025-01-07 12:05:00'),
+        ('lucas', 'lucas@example.com', 'scrypt:32768:8:1$uH3W...', 0, '2025-01-08 16:30:00'),
+        ('olivia', 'olivia@example.com', 'scrypt:32768:8:1$uH3W...', 0, '2025-01-09 08:50:00'),
+        ('noah', 'noah@example.com', 'scrypt:32768:8:1$uH3W...', 0, '2025-01-10 22:15:00')
         """,
         
         # Набор популярных игр для демонстрации

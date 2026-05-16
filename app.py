@@ -49,6 +49,10 @@ def game(game_id):
 
 @app.route("/add-game", methods=["GET", "POST"])
 def add_game():
+    if not session.get("is_admin"):
+        flash("Access denied: Administrators only!")
+        return redirect(url_for("index"))
+        
     if request.method == "POST":
         title = request.form.get("title", "").strip()
         date = request.form.get("release_date")
@@ -87,6 +91,9 @@ def statistics():
 
 @app.route("/logs")
 def logs():
+    if not session.get("is_admin"):
+        flash("Access denied: Administrators only!")
+        return redirect(url_for("index"))
     # Список действий
     return render_template("logs.html", logs=query_db("SELECT * FROM review_audit_log ORDER BY id DESC LIMIT 20"))
 
@@ -124,6 +131,7 @@ def login():
         u = query_db("SELECT * FROM users WHERE username=%s", (request.form["username"],), one=True)
         if u and check_password_hash(u["password_hash"], request.form["password"]):
             session["user_id"], session["username"] = u["id"], u["username"]
+            session["is_admin"] = u.get("is_admin", 0)
             flash(f"Welcome back, {u['username']}!")
             return redirect(url_for("index"))
         flash("Invalid username or password!")

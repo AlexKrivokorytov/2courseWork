@@ -31,6 +31,7 @@ CREATE TABLE IF NOT EXISTS users (
     username VARCHAR(100) NOT NULL UNIQUE,
     email VARCHAR(255) NOT NULL UNIQUE,
     password_hash VARCHAR(255) NOT NULL, -- Хешированный пароль для безопасности
+    is_admin TINYINT DEFAULT 0, -- 1 для админа, 0 для обычного пользователя
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP
 );
 
