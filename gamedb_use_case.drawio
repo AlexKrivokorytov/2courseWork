@@ -1,0 +1,66 @@
+<mxfile host="app.diagrams.net" modified="2024-05-17T00:00:00.000Z" agent="5.0" version="24.4.0">
+  <diagram id="use_case_diagram" name="Use Case Diagram">
+    <mxGraphModel dx="1422" dy="762" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="boundary" value="Ігрова Інформаційна Система" style="shape=rect;html=1;verticalAlign=top;fontStyle=1;whiteSpace=wrap;fillColor=#f5f5f5;fontColor=#333333;strokeColor=#666666;" parent="1" vertex="1">
+          <mxGeometry x="260" y="80" width="360" height="600" as="geometry" />
+        </mxCell>
+        
+        <!-- Actors -->
+        <mxCell id="guest" value="Гість" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;outlineConnect=0;" parent="1" vertex="1">
+          <mxGeometry x="80" y="140" width="30" height="60" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="user" value="Авторизований&#10;користувач" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;outlineConnect=0;" parent="1" vertex="1">
+          <mxGeometry x="80" y="320" width="30" height="60" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="admin" value="Адміністратор" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;outlineConnect=0;" parent="1" vertex="1">
+          <mxGeometry x="80" y="500" width="30" height="60" as="geometry" />
+        </mxCell>
+
+        <!-- Use Cases -->
+        <mxCell id="uc1" value="Реєстрація / Вхід" style="ellipse;whiteSpace=wrap;html=1;" parent="1" vertex="1">
+          <mxGeometry x="360" y="110" width="160" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="uc2" value="Пошук та фільтрація ігор" style="ellipse;whiteSpace=wrap;html=1;" parent="1" vertex="1">
+          <mxGeometry x="360" y="190" width="160" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="uc3" value="Перегляд деталей гри" style="ellipse;whiteSpace=wrap;html=1;" parent="1" vertex="1">
+          <mxGeometry x="360" y="270" width="160" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="uc5" value="Перегляд статистики" style="ellipse;whiteSpace=wrap;html=1;" parent="1" vertex="1">
+          <mxGeometry x="360" y="350" width="160" height="60" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="uc4" value="Написання відгуку та оцінка" style="ellipse;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;" parent="1" vertex="1">
+          <mxGeometry x="360" y="430" width="160" height="60" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="uc6" value="Додавання нової гри (SP)" style="ellipse;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" parent="1" vertex="1">
+          <mxGeometry x="360" y="510" width="160" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="uc7" value="Моніторинг логів (Triggers)" style="ellipse;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" parent="1" vertex="1">
+          <mxGeometry x="360" y="590" width="160" height="60" as="geometry" />
+        </mxCell>
+
+        <!-- Connections (Links) -->
+        <mxCell id="link1" edge="1" parent="1" source="guest" target="uc1"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="link2" edge="1" parent="1" source="guest" target="uc2"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="link3" edge="1" parent="1" source="guest" target="uc3"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="link5" edge="1" parent="1" source="guest" target="uc5"><mxGeometry relative="1" as="geometry" /></mxCell>
+        
+        <mxCell id="link4" edge="1" parent="1" source="user" target="uc4"><mxGeometry relative="1" as="geometry" /></mxCell>
+        
+        <mxCell id="link6" edge="1" parent="1" source="admin" target="uc6"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="link7" edge="1" parent="1" source="admin" target="uc7"><mxGeometry relative="1" as="geometry" /></mxCell>
+
+        <!-- Inheritances -->
+        <mxCell id="inh_user_guest" edge="1" parent="1" source="user" target="guest" style="endArrow=block;endSize=16;endFill=0;html=1;"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="inh_admin_user" edge="1" parent="1" source="admin" target="user" style="endArrow=block;endSize=16;endFill=0;html=1;"><mxGeometry relative="1" as="geometry" /></mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

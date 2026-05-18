@@ -1,0 +1,46 @@
+<mxfile host="app.diagrams.net" modified="2024-05-17T00:00:00.000Z" agent="5.0" version="24.4.0">
+  <diagram id="relational_model_diagram" name="Relational Database Model">
+    <mxGraphModel dx="1422" dy="762" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        
+        <!-- Table: developers -->
+        <mxCell id="rt_devs" value="developers (Table)&#10;---&#10;+ id: INT (PK)&#10;+ name: VARCHAR(150)&#10;+ country: VARCHAR(100)" style="shape=umlClass;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;align=left;spacingLeft=10;" parent="1" vertex="1">
+          <mxGeometry x="40" y="40" width="180" height="90" as="geometry" />
+        </mxCell>
+
+        <!-- Table: publishers -->
+        <mxCell id="rt_pubs" value="publishers (Table)&#10;---&#10;+ id: INT (PK)&#10;+ name: VARCHAR(150)&#10;+ country: VARCHAR(100)" style="shape=umlClass;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;align=left;spacingLeft=10;" parent="1" vertex="1">
+          <mxGeometry x="40" y="160" width="180" height="90" as="geometry" />
+        </mxCell>
+
+        <!-- Table: games -->
+        <mxCell id="rt_games" value="games (Table)&#10;---&#10;+ id: INT (PK)&#10;+ title: VARCHAR(255)&#10;+ release_date: DATE&#10;+ description: TEXT&#10;+ developer_id: INT (FK)&#10;+ publisher_id: INT (FK)&#10;+ cover_url: VARCHAR(255)" style="shape=umlClass;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;align=left;spacingLeft=10;" parent="1" vertex="1">
+          <mxGeometry x="320" y="40" width="200" height="150" as="geometry" />
+        </mxCell>
+
+        <!-- Table: reviews -->
+        <mxCell id="rt_reviews" value="reviews (Table)&#10;---&#10;+ id: INT (PK)&#10;+ game_id: INT (FK)&#10;+ user_id: INT (FK)&#10;+ score: DECIMAL(4,1)&#10;+ review_text: TEXT&#10;+ created_at: DATETIME" style="shape=umlClass;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;align=left;spacingLeft=10;" parent="1" vertex="1">
+          <mxGeometry x="600" y="40" width="180" height="130" as="geometry" />
+        </mxCell>
+
+        <!-- Table: users -->
+        <mxCell id="rt_users" value="users (Table)&#10;---&#10;+ id: INT (PK)&#10;+ username: VARCHAR(100)&#10;+ email: VARCHAR(255)&#10;+ password_hash: VARCHAR(255)&#10;+ is_admin: TINYINT&#10;+ created_at: DATETIME" style="shape=umlClass;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;align=left;spacingLeft=10;" parent="1" vertex="1">
+          <mxGeometry x="600" y="220" width="180" height="130" as="geometry" />
+        </mxCell>
+
+        <!-- NF Analysis Table -->
+        <mxCell id="nf_analysis" value="&lt;table border='1' width='100%' cellpadding='4' style='border-collapse:collapse; font-size:12px;'&gt;&#10;&lt;tr&gt;&lt;th bgcolor='#eeeeee'&gt;Нормальна форма&lt;/th&gt;&lt;th bgcolor='#eeeeee'&gt;Критерій та підтвердження&lt;/th&gt;&lt;/tr&gt;&#10;&lt;tr&gt;&lt;td&gt;&lt;b&gt;1NF&lt;/b&gt;&lt;/td&gt;&lt;td&gt;Атомарність значень. Усі поля (напр. &lt;i&gt;score, email&lt;/i&gt;) не містять списків або наборів даних.&lt;/td&gt;&lt;/tr&gt;&#10;&lt;tr&gt;&lt;td&gt;&lt;b&gt;2NF&lt;/b&gt;&lt;/td&gt;&lt;td&gt;Відсутність часткових залежностей. Усі неключові поля залежать від усього первинного ключа (ID).&lt;/td&gt;&lt;/tr&gt;&#10;&lt;tr&gt;&lt;td&gt;&lt;b&gt;3NF&lt;/b&gt;&lt;/td&gt;&lt;td&gt;Відсутність транзитивних залежностей. &lt;i&gt;developers&lt;/i&gt; та &lt;i&gt;publishers&lt;/i&gt; декомпоновані для уникнення дублювання даних про країни.&lt;/td&gt;&lt;/tr&gt;&#10;&lt;/table&gt;" style="text;html=1;whiteSpace=wrap;overflow=hidden;rounded=0;" parent="1" vertex="1">
+          <mxGeometry x="40" y="380" width="480" height="150" as="geometry" />
+        </mxCell>
+
+        <!-- FK Links -->
+        <mxCell id="fk1" edge="1" parent="1" source="rt_devs" target="rt_games" style="endArrow=block;endFill=1;html=1;"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="fk2" edge="1" parent="1" source="rt_pubs" target="rt_games" style="endArrow=block;endFill=1;html=1;"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="fk3" edge="1" parent="1" source="rt_games" target="rt_reviews" style="endArrow=block;endFill=1;html=1;"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="fk4" edge="1" parent="1" source="rt_users" target="rt_reviews" style="endArrow=block;endFill=1;html=1;"><mxGeometry relative="1" as="geometry" /></mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
